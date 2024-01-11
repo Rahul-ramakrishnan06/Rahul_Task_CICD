@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hackerrank
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hackerrank
+  template:
+    metadata:
+      labels:
+        app: hackerrank
+    spec:
+      containers:
+      - name: hackerrank
+        image: rahulkarthi54321/nodejsdockerimage:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: NODE_ENV
+          value: development
+        - name: MONGODB_URI
+          value: "mongodb://mongo:27017/test"
+      imagePullSecrets:
+       - name: nodejs-registry-secret  
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hackerrank-service
+spec:
+  selector:
+    app: hackerrank
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hackerrank-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

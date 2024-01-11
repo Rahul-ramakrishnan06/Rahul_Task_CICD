@@ -1,0 +1,43 @@
+pipeline {
+	agent{
+        label 'nodejs'
+	}
+
+	tools {
+        nodejs 'Node.js'
+    }
+
+    environment {
+        DOCKER_IMAGE = 'nodejs-multi_version-10_web:latest'
+		SONARQUBE_HOME = tool 'SonarQubeScanner'
+    }
+	stages{
+		stage('Install Dependencies') {
+            steps {
+                script {
+                    // Install Node.js dependencies
+                    sh 'npm install'
+                }
+            }
+        }
+
+		stage('Build and SonarQube Scan') {
+            steps {
+                script {
+                    sh "${SONARQUBE_HOME}/bin/sonar-scanner \
+                        -Dsonar.projectKey=Nodejs \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=http://52.91.148.253:9000 \
+                        -Dsonar.login=sqa_8ffb79811d285200424245cfa07e74d61bd80e03"
+                }
+            }
+        }
+		stage('Build'){
+			steps{
+				script{
+                    sh 'node app.js'
+				}
+			}
+		}
+	}
+}

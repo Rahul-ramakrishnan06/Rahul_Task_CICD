@@ -1,0 +1,7 @@
+replicaCount: 1
+image:
+  repository: rahulkarthi54321/nodejsdockerimage
+  tag: latest
+env:
+  NODE_ENV: development
+  MONGODB_URI: "mongodb://mongo:27017/test"

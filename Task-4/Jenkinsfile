@@ -1,0 +1,52 @@
+pipeline {
+    agent{
+        label 'master'
+	}
+
+    environment {
+        DOCKER_HUB_USERNAME = credentials('docker-hub-username')
+        DOCKER_HUB_PASSWORD = credentials('docker-hub-password')
+		        
+        DOCKER_IMAGE_NAME = 'rahulkarthi54321/nodejsdockerimage'
+        DOCKER_IMAGE_TAG = 'latest'
+    }
+
+    stages {
+
+		stage('Build'){
+			steps{
+				script{
+                    sh 'docker-compose build web'
+				}
+			}
+		}
+
+		stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+                        def customImage = docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}")
+                    }
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+                        docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}").push()
+                    }
+                }
+            }
+        }
+
+		stage('Build'){
+			steps{
+				script{
+                    sh 'kubectl apply -f deployment.yaml'
+				}
+			}
+		}
+    }
+}

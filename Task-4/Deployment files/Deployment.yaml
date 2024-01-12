@@ -22,6 +22,10 @@ spec:
           value: development
         - name: MONGODB_URI
           value: "mongodb://mongo:27017/test"
+      - name: mongo
+        image: mongo
+        ports:
+          - containerPort: 27017
       imagePullSecrets:
        - name: nodejs-registry-secret  
       restartPolicy: Always
